@@ -1,0 +1,60 @@
+services:
+  
+  db:
+    restart: "on-failure"
+    image: postgres:15.1-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379" 
+  
+  api: &api_service
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./.env
+
+
+  celery-worker:
+    <<: *api_service
+    command: celery -A amazon_scraper worker --loglevel=info
+    ports: []
+    depends_on:
+      - redis
+    env_file:
+      - ./.env
+
+  celery-beat:
+    <<: *api_service
+    command: celery -A amazon_scraper beat --loglevel=info
+    ports: []
+    depends_on:
+      - redis
+      - celery-worker
+    env_file:
+      - ./.env
+   
+  flower-dashboard:
+    <<: *api_service
+    command: celery --broker=redis://redis:6379 flower --port=5555
+    ports:
+      - '5555:5555'
+    depends_on:
+      - redis
+      - celery-worker
+
+
+volumes:
+  postgres_data:

@@ -1,0 +1,11 @@
+django
+djangorestframework
+celery
+django-celery-beat
+beautifulsoup4 
+requests
+redis
+gunicorn
+psycopg2-binary
+python-decouple
+flower
