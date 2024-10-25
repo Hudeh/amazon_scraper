@@ -45,3 +45,23 @@ The easiest way to run the project is by using Docker Compose, which will set up
     ```bash
     docker-compose up
     ```
+
+3. **Add the Task to Django Admin**
+
+    Create a PeriodicTask in the Django Admin:
+    Navigate to Periodic Tasks (under django-celery-beat).
+
+    Create a new periodic task:
+
+    Name: Update Brand Products
+    Task: products.tasks.update_brand_products
+    Set a Crontab Schedule:
+
+    In the Django Admin, go to Crontab Schedule under django-celery-beat.
+    Add a new schedule with:
+    Minute: 0
+    Hour: 0,6,12,18 (this will run the task 4 times a day at midnight, 6 AM, noon, and 6 PM).
+    Day of Month: *
+    Month:*
+    Day of Week: *
+    Go back to your Periodic Task and associate it with the newly created crontab schedule.
